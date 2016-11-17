@@ -38,6 +38,10 @@
 		return nil, nil
 	}
 
+	func updateArray() (){
+
+	}
+
 	func createBankDeposits(name string, amount float64) (Bank, error) {
 		var bank Bank
 		bank.BankCode = name
@@ -45,9 +49,18 @@
 		return bank, nil
 	}
 
-	func updateBankDeposits(bank Bank, amount float64) (Bank) {
-		bank.Amount += amount
-		return bank
+	func updateBankDeposits(bank []Bank, index int, amount float64) ([]Bank, error) {
+		var new_banks []Bank
+		var i int = 0
+		for _, value := range bank {
+			if(index == i){
+				value.Amount += amount
+				new_banks = append(new_banks, value)
+			} else {
+				new_banks = append(new_banks, value)
+			}
+		}
+		return new_banks, nil
 	}
 
 	func getBankSplit(banksnaming string, amount float64) ([]Bank, error) {
@@ -80,7 +93,11 @@
 		}
 
 		if(amount > 0){
-			updateBankDeposits(banks[0], amount)
+			banks, err  := updateBankDeposits(banks, 0, amount)
+			if err != nil {
+				fmt.Println("Error updateBankDeposits ")
+				return nil, err
+			}
 			amount = 0
 		}
 
@@ -107,14 +124,6 @@
 			fmt.Println("Internal error while spliting amount")
 	    return nil, err
 		}
-		/*var banks []Bank
-		banknames := strings.Split(args[3], ":")
-		for _, value := range banknames {
-			var bank Bank
-			bank.BankCode = value
-			bank.Amount = 10
-			banks = append(banks, bank)
-		}*/
 
 	  var account = Account{No: accountno, Name: name, Balance: balance, Banks: banks}
 	  accountBytes, err := json.Marshal(&account)
