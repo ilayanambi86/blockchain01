@@ -24,7 +24,7 @@ type Account struct {
 	Banks    		[]Bank 	`json:"banks"`
 }
 
-func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Println("Initializing account keys")
 	var blank []string
 	blankBytes, _ := json.Marshal(&blank)
@@ -198,11 +198,6 @@ func GetBalance(userAccount string, stub shim.ChaincodeStubInterface) (Account, 
 	}
 
 	return account, nil
-}
-
-func (t *SimpleChaincode) Run(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-	fmt.Println("run is running " + function)
-	return t.Invoke(stub, function, args)
 }
 
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
