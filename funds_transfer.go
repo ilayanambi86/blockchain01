@@ -122,7 +122,7 @@
 			new_banks = append(new_banks, bank)
 		}
 
-		banks, err  := updateBankDeposits(banks, 0, amount)
+		banks, err  := updateBankDeposits(new_banks, 0, amount)
 		if err != nil {
 			fmt.Println("Error updateBankDeposits ")
 			return nil, err
