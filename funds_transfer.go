@@ -5,82 +5,105 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-    "strings"
-
+	"strings"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
 type SimpleChaincode struct {
 }
 
+type Bank struct {
+	BankCode	string	`json:"bankcode"`
+	Amount		float64 `json:"amount"`
+}
+
 type Account struct {
-	ID          string  `json:"id"`
-	Balance float64 `json:"cashBalance"`
+	No          string  `json:"no"`
+	Name        string  `json:"name"`
+	Balance 		float64 `json:"cashBalance"`
+	Banks    		[]Bank 	`json:"banks"`
 }
 
 func (t *SimpleChaincode) Init(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
+	fmt.Println("Initializing account keys")
+	var blank []string
+	blankBytes, _ := json.Marshal(&blank)
+	err := stub.PutState("AccountKeys", blankBytes)
+	if err != nil {
+	    fmt.Println("Failed to initialize account key")
+	}
 	fmt.Println("Initialization complete")
 	return nil, nil
 }
 
 func (t *SimpleChaincode) createAccount(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
-    if len(args) != 2 {
-        fmt.Println("Error obtaining useraccount & opening balance")
-        return nil, errors.New("createAccount accepts useraccount & opening balance as arguments")
-    }
-    useraccount := args[0]
-	openBal, err  := strconv.ParseFloat(args[1], 64)
+  if len(args) != 3 {
+      fmt.Println("Error obtaining request details. Missing arguments.")
+      return nil, errors.New("Error obtaining request details. Missing arguments.")
+  }
 
+  accountno := args[0]
+	name := args[1]
+
+	balance, err  := strconv.ParseFloat(args[2], 64)
 	if err != nil {
-		fmt.Println("Internal Error ")
-        return nil, errors.New("Internal Error ")
+		fmt.Println("Internal error while reading balance from request")
+    return nil, errors.New("Internal error while reading balance from request")
 	}
 
-    var account = Account{ID: useraccount, Balance: openBal}
-    accountBytes, err := json.Marshal(&account)
-    if err != nil {
-        fmt.Println("error creating account" + account.ID)
-        return nil, errors.New("Error creating account " + account.ID)
-    }
+	var banks []Bank
+	banknames := strings.Split(args[3], ":")
+	for _, value := range banknames {
+		var bank Bank
+		bank.BankCode = value
+		bank.Amount = 10
+		banks = append(banks, bank)
+	}
 
-    fmt.Println("Attempting to get state of any existing account for " + account.ID)
-    existingBytes, err := stub.GetState(account.ID)
+  var account = Account{No: accountno, Name: name, Balance: balance, Banks: banks}
+  accountBytes, err := json.Marshal(&account)
+  if err != nil {
+      fmt.Println("error creating account" + account.No)
+      return nil, errors.New("Error creating account " + account.No)
+  }
+
+  fmt.Println("Attempting to get state of any existing account for " + account.No)
+  existingBytes, err := stub.GetState(account.No)
 	if err == nil {
-
-        var user Account
-        err = json.Unmarshal(existingBytes, &user)
+        var userAccount Account
+        err = json.Unmarshal(existingBytes, &userAccount)
         if err != nil {
-            fmt.Println("Error unmarshalling account " + account.ID + "\n--->: " + err.Error())
+            fmt.Println("Error unmarshalling account " + account.No + "\n--->: " + err.Error())
 
             if strings.Contains(err.Error(), "unexpected end") {
-                fmt.Println("No data means existing account found for " + account.ID + ", initializing account.")
-                err = stub.PutState(account.ID, accountBytes)
+                fmt.Println("No data means existing account found for " + account.No + ", initializing account.")
+                err = stub.PutState(account.No, accountBytes)
 
                 if err == nil {
-                    fmt.Println("created account" + account.ID)
+                    fmt.Println("created account" + account.No)
                     return nil, nil
                 } else {
-                    fmt.Println("failed to create initialize account for " + account.ID)
-                    return nil, errors.New("failed to initialize an account for " + account.ID + " => " + err.Error())
+                    fmt.Println("failed to create initialize account for " + account.No)
+                    return nil, errors.New("failed to initialize an account for " + account.No + " => " + err.Error())
                 }
             } else {
-                return nil, errors.New("Error unmarshalling existing account " + account.ID)
+                return nil, errors.New("Error unmarshalling existing account " + account.No)
             }
         } else {
-            fmt.Println("Account already exists for " + account.ID + " " + user.ID)
-		    return nil, errors.New("Can't reinitialize existing user " + account.ID)
+            fmt.Println("Account already exists for " + account.No + " " + userAccount.No)
+		    		return nil, errors.New("Can't reinitialize existing user " + account.No)
         }
     } else {
 
-        fmt.Println("No existing account found for " + account.ID + ", initializing account.")
-        err = stub.PutState(account.ID, accountBytes)
+        fmt.Println("No existing account found for " + account.No + ", initializing account.")
+        err = stub.PutState(account.No, accountBytes)
 
         if err == nil {
-            fmt.Println("created account" + account.ID)
+            fmt.Println("created account" + account.No)
             return nil, nil
         } else {
-            fmt.Println("failed to create initialize account for " + account.ID)
-            return nil, errors.New("failed to initialize an account for " + account.ID + " => " + err.Error())
+            fmt.Println("failed to create initialize account for " + account.No)
+            return nil, errors.New("failed to initialize an account for " + account.No + " => " + err.Error())
         }
     }
 }
@@ -122,14 +145,14 @@ func (t *SimpleChaincode) depositMoney(stub *shim.ChaincodeStub, args []string) 
 		return nil, errors.New("Error marshalling the account")
 	}
 
-	err = stub.PutState(account.ID, updatedAccountBytes)
+	err = stub.PutState(account.No, updatedAccountBytes)
 
 	if err == nil {
-		fmt.Println("deposited money to account" + account.ID)
+		fmt.Println("deposited money to account" + account.No)
 		return nil, nil
 	} else {
-		fmt.Println("failed to deposit money to account " + account.ID)
-		return nil, errors.New("failed to deposit money to account " + account.ID + " => " + err.Error())
+		fmt.Println("failed to deposit money to account " + account.No)
+		return nil, errors.New("failed to deposit money to account " + account.No + " => " + err.Error())
    	}
 	fmt.Println("Successfully completed deposit")
 	return nil, nil
@@ -205,4 +228,3 @@ func main() {
 		fmt.Println("Error starting Simple chaincode: %s", err)
 	}
 }
-
