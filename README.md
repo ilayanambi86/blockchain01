@@ -33,3 +33,14 @@ Request
   "enrollId": "string",
   "enrollSecret": "string"
 }
+
+
+
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "status": "OK",
+    "message": "{\"no\":\"AB00103\",\"name\":\"IlayanambiTester1\",\"cashBalance\":750001,\"banks\":[{\"bankcode\":\"B1\",\"amount\":250000},{\"bankcode\":\"B2\",\"amount\":250000},{\"bankcode\":\"B3\",\"amount\":250000}]}"
+  },
+  "id": 1
+}
