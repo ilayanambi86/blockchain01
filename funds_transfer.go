@@ -38,11 +38,11 @@
 		return nil, nil
 	}
 
-	func createBankDeposits(name string, amount float64) (Bank) {
+	func createBankDeposits(name string, amount float64) (Bank, error) {
 		var bank Bank
 		bank.BankCode = name
 		bank.Amount = amount
-		return bank
+		return bank, nil
 	}
 
 	func updateBankDeposits(bank Bank, amount float64) (Bank) {
@@ -61,10 +61,20 @@
 
 		for _, value := range banknames {
 			if(amount >= cap) {
-				banks = append(banks, createBankDeposits(value, cap))
+				bank, err  := createBankDeposits(value, cap)
+				if err != nil {
+					fmt.Println("Error createBankDeposits ")
+			    return nil, err
+				}
+				banks = append(banks, bank)
 				amount -= cap
 			} else if (amount < cap) {
-				banks = append(banks, createBankDeposits(value, amount))
+				bank, err  := createBankDeposits(value, amount)
+				if err != nil {
+					fmt.Println("Error createBankDeposits ")
+					return nil, err
+				}
+				banks = append(banks, bank)
 			}
 		}
 
@@ -93,7 +103,7 @@
 		banks, err := getBankSplit(args[3], balance)
 		if err != nil {
 			fmt.Println("Internal error while spliting amount")
-	    return nil, errors.New("Internal error while spliting amount")
+	    return nil, err
 		}
 		/*var banks []Bank
 		banknames := strings.Split(args[3], ":")
