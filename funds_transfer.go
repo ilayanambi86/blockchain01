@@ -54,7 +54,7 @@
 		var banks []Bank
 		banknames := strings.Split(banksnaming, ":")
 
-		if(len(banks) == 0) {
+		if(len(banknames) == 0) {
 			fmt.Println("Bank names are mising.")
 			return nil, errors.New("Bank names are mising.")
 		}
