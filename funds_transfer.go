@@ -66,7 +66,6 @@
 
 	func getBankSplit(banksnaming string, amount float64) ([]Bank, error) {
 		var banks []Bank
-		var new_banks []Bank
 		banknames := strings.Split(banksnaming, ":")
 
 		if(len(banknames) == 0) {
@@ -97,6 +96,7 @@
 		if(amount > 0){
 			banks:= updateBankDeposits(banks, 0, amount)
 			amount = 0
+			return banks, nil
 		}
 
 		return banks, nil
