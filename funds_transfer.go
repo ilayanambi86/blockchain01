@@ -95,7 +95,7 @@
 		}
 
 		if(amount > 0){
-			new_banks, err  := updateBankDeposits(banks, 0, amount)
+			banks, err  := updateBankDeposits(banks, 0, amount)
 			if err != nil {
 				fmt.Println("Error updateBankDeposits ")
 				return nil, err
@@ -103,7 +103,7 @@
 			amount = 0
 		}
 
-		return new_banks, nil
+		return banks, nil
 	}
 
 	func (t *SimpleChaincode) createAccount(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
