@@ -38,15 +38,38 @@
 		return nil, nil
 	}
 
+	func createBankDeposits(name string, amount float64) (Bank) {
+		var bank Bank
+		bank.BankCode = name
+		bank.Amount = amount
+		return bank
+	}
+
+	func updateBankDeposits(bank Bank, amount float64) (Bank) {
+		bank.Amount += amount
+		return bank
+	}
+
 	func getBankSplit(banksnaming string, amount float64) ([]Bank, error) {
 		var banks []Bank
 		banknames := strings.Split(banksnaming, ":")
-		for _, value := range banknames {
-			var bank Bank
-			bank.BankCode = value
-			bank.Amount = 10
-			banks = append(banks, bank)
+
+		if(len(banks) == 0) {
+			fmt.Println("Bank names are mising.")
+			return nil, errors.New("Bank names are mising.")
 		}
+
+		for _, value := range banknames {
+			if(amount > cap) {
+				banks = append(banks, createBankDeposits(value, cap))
+				amount -= cap
+			}
+		}
+
+		if(amount > 0){
+			updateBankDeposits(banks[0], amount)
+		}
+
 		return banks, nil
 	}
 
