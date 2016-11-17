@@ -38,7 +38,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 
 func (t *SimpleChaincode) createAccount(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	fmt.Println("inside create account")
-  if len(args) != 3 {
+  if len(args) != 4 {
       fmt.Println("Error obtaining request details. Missing arguments.")
       return nil, errors.New("Error obtaining request details. Missing arguments.")
   }
