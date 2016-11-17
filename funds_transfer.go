@@ -60,9 +60,11 @@
 		}
 
 		for _, value := range banknames {
-			if(amount > cap) {
+			if(amount >= cap) {
 				banks = append(banks, createBankDeposits(value, cap))
 				amount -= cap
+			} else if (amount < cap) {
+				banks = append(banks, createBankDeposits(value, amount))
 			}
 		}
 
