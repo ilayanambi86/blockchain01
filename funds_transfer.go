@@ -64,7 +64,7 @@
 		return new_banks, nil
 	}
 
-	func getBankSplit(banksnaming string, amount float64) ([]Bank, error) {
+	func getBankSplitWithPriority(banksnaming string, amount float64) ([]Bank, error) {
 		var banks []Bank
 		banknames := strings.Split(banksnaming, ":")
 
@@ -106,6 +106,30 @@
 		return banks, nil
 	}
 
+	func splitAndDepositMoneyToBank(banks []Bank, amount float64) ([]Bank, error) {
+		var new_banks []Bank
+		for _, bank := range banks {
+			if(bank.Amount < cap){
+				if(amount >= cap){
+					var cr = cap - bank.Amount
+					bank.Amount += cr
+					amount -= cr
+				} else if (amount < cap) {
+					bank.Amount += amount
+					amount = 0
+				}
+			}
+			new_banks = append(new_banks, bank)
+		}
+
+		banks, err  := updateBankDeposits(banks, 0, amount)
+		if err != nil {
+			fmt.Println("Error updateBankDeposits ")
+			return nil, err
+		}
+		return banks, nil
+	}
+
 	func (t *SimpleChaincode) createAccount(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	  if len(args) != 4 {
 	      fmt.Println("Error obtaining request details. Missing arguments.")
@@ -121,7 +145,7 @@
 	    return nil, errors.New("Internal error while reading balance from request")
 		}
 
-		banks, err := getBankSplit(args[3], balance)
+		banks, err := getBankSplitWithPriority(args[3], balance)
 		if err != nil {
 			fmt.Println("Internal error while spliting amount")
 	    return nil, err
@@ -204,7 +228,15 @@
 			return nil, errors.New("Error unmarshalling account " + useraccount)
 		}
 
+
 		account.Balance += depositAmt
+
+		updatedBanks, err := splitAndDepositMoneyToBank(account.Banks, depositAmt)
+		if err != nil {
+			fmt.Println("Error splitAndDepositMoneyToBank")
+			return nil, errors.New("Error splitAndDepositMoneyToBank")
+		}
+		account.Banks = updatedBanks
 
 		updatedAccountBytes, err := json.Marshal(&account)
 		if err != nil {
