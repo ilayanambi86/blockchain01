@@ -75,11 +75,13 @@
 					return nil, err
 				}
 				banks = append(banks, bank)
+				amount = 0
 			}
 		}
 
 		if(amount > 0){
 			updateBankDeposits(banks[0], amount)
+			amount = 0
 		}
 
 		return banks, nil
