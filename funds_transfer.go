@@ -49,7 +49,7 @@
 		return bank, nil
 	}
 
-	func updateBankDeposits(bank []Bank, index int, amount float64) ([]Bank) {
+	func updateBankDeposits(bank []Bank, index int, amount float64) ([]Bank, error) {
 		var new_banks []Bank
 		var i int = 0
 		for _, value := range bank {
@@ -61,7 +61,7 @@
 			}
 			i++
 		}
-		return new_banks
+		return new_banks, nil
 	}
 
 	func getBankSplit(banksnaming string, amount float64) ([]Bank, error) {
@@ -94,7 +94,11 @@
 		}
 
 		if(amount > 0){
-			banks:= updateBankDeposits(banks, 0, amount)
+			banks, err  := updateBankDeposits(banks, 0, amount)
+			if err != nil {
+				fmt.Println("Error updateBankDeposits ")
+				return nil, err
+			}
 			amount = 0
 			return banks, nil
 		}
