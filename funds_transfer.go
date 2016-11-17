@@ -24,7 +24,7 @@ type Account struct {
 	Banks    		[]Bank 	`json:"banks"`
 }
 
-func (t *SimpleChaincode) Init(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
+func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	fmt.Println("Initializing account keys")
 	var blank []string
 	blankBytes, _ := json.Marshal(&blank)
@@ -36,7 +36,7 @@ func (t *SimpleChaincode) Init(stub *shim.ChaincodeStub, function string, args [
 	return nil, nil
 }
 
-func (t *SimpleChaincode) createAccount(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
+func (t *SimpleChaincode) createAccount(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
   if len(args) != 3 {
       fmt.Println("Error obtaining request details. Missing arguments.")
       return nil, errors.New("Error obtaining request details. Missing arguments.")
@@ -108,7 +108,7 @@ func (t *SimpleChaincode) createAccount(stub *shim.ChaincodeStub, args []string)
     }
 }
 
-func (t *SimpleChaincode) depositMoney(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
+func (t *SimpleChaincode) depositMoney(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
     if len(args) != 2 {
         fmt.Println("Error obtaining useraccount & deposit money")
         return nil, errors.New("depositMoney accepts useraccount & money as arguments")
@@ -158,7 +158,7 @@ func (t *SimpleChaincode) depositMoney(stub *shim.ChaincodeStub, args []string) 
 	return nil, nil
 }
 
-func (t *SimpleChaincode) Query(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
+func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	if len(args) < 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting ......")
 	}
@@ -182,7 +182,7 @@ func (t *SimpleChaincode) Query(stub *shim.ChaincodeStub, function string, args 
 	return nil, nil
 }
 
-func GetBalance(userAccount string, stub *shim.ChaincodeStub) (Account, error){
+func GetBalance(userAccount string, stub shim.ChaincodeStubInterface) (Account, error){
 	var account Account
 
 	accountBytes, err := stub.GetState(userAccount)
@@ -200,12 +200,12 @@ func GetBalance(userAccount string, stub *shim.ChaincodeStub) (Account, error){
 	return account, nil
 }
 
-func (t *SimpleChaincode) Run(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
+func (t *SimpleChaincode) Run(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Println("run is running " + function)
 	return t.Invoke(stub, function, args)
 }
 
-func (t *SimpleChaincode) Invoke(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
+func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Println("invoke is running " + function)
 
 	if function == "createAccount" {
