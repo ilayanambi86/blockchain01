@@ -200,6 +200,11 @@ func GetBalance(userAccount string, stub shim.ChaincodeStubInterface) (Account, 
 	return account, nil
 }
 
+func (t *SimpleChaincode) Run(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	fmt.Println("run is running " + function)
+	return t.Invoke(stub, function, args)
+}
+
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Println("invoke is running " + function)
 
