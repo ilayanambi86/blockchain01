@@ -425,15 +425,15 @@
 
 	func GetAllAccountNo(stub shim.ChaincodeStubInterface) ([]string, error){
 
-		keysBytes, err1 := stub.GetState("AccountKeys")
-		if err1 != nil {
+		keysBytes, err := stub.GetState("AccountKeys")
+		if err != nil {
 			fmt.Println("Error retrieving AccountKeys")
 			return nil, errors.New("Error retrieving AccountKeys")
 		}
 
 		var keys []string
-		err2 = json.Unmarshal(keysBytes, &keys)
-		if err2 != nil {
+		err = json.Unmarshal(keysBytes, &keys)
+		if err != nil {
 			fmt.Println("Error unmarshel keys")
 			return nil, errors.New("Error unmarshalling paper keys ")
 		}
