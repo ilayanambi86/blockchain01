@@ -208,7 +208,7 @@
 	}
 
 	func withdrawMoneyFromBank(banks []Bank, amount float64) ([]Bank, error) {
-		//var new_banks []Bank
+		var new_banks []Bank
 		for _, bank := range banks {
 			if(bank.Amount > cap) {
 				var dr =  bank.Amount - cap
@@ -220,10 +220,10 @@
 					amount = 0
 				}
 			}
-			//new_banks = append(new_banks, bank)
+			new_banks = append(new_banks, bank)
 		}
-
-		for _, bank := range reverse(banks) {
+		var new_banks1 []Bank
+		for _, bank := range reverse(new_banks) {
 			if(amount > 0){
 				if(bank.Amount >= amount) {
 					bank.Amount -= amount
@@ -234,8 +234,10 @@
 					amount = dr
 				}
 			}
+			new_banks1 = append(new_banks1, bank)
 		}
-		return banks, nil
+
+		return reverse(new_banks1), nil
 	}
 
 	func (t *SimpleChaincode) withdrawMoney(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
