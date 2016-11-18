@@ -446,7 +446,7 @@ func withdrawMoneyFromBank(banks []Bank, amount float64) ([]Bank, error) {
 	}
 	var new_banks1 []Bank
 	for _, bank1 := range reverse(new_banks) {
-		if amount > 0 {
+		if amount > 0 && bank1.Amount > 0{
 			if bank1.Amount >= amount {
 				bank1.Amount -= amount
 				amount = 0
