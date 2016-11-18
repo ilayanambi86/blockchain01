@@ -451,9 +451,8 @@ func withdrawMoneyFromBank(banks []Bank, amount float64) ([]Bank, error) {
 				bank1.Amount -= amount
 				amount = 0
 			} else {
-				var dr = amount - bank1.Amount
 				amount -= bank1.Amount
-				bank1.Amount = 0				
+				bank1.Amount = 0
 			}
 		}
 		new_banks1 = append(new_banks1, bank1)
