@@ -199,6 +199,33 @@
 
 	        if err == nil {
 	            fmt.Println("created account" + account.No)
+
+							keysBytes, err := stub.GetState("AccountKeys")
+							if err != nil {
+								fmt.Println("Error retrieving AccountKeys")
+								return nil, errors.New("Error retrieving AccountKeys")
+							}
+
+							var keys []string
+							err = json.Unmarshal(keysBytes, &keys)
+							if err != nil {
+								fmt.Println("Error unmarshel keys")
+								return nil, errors.New("Error unmarshalling paper keys ")
+							}
+
+							keys = append(keys, account.No)
+							keysBytesToWrite, err := json.Marshal(&keys)
+							if err != nil {
+								fmt.Println("Error marshalling keys")
+								return nil, errors.New("Error marshalling the keys")
+							}
+
+							err = stub.PutState("AccountKeys", keysBytesToWrite)
+							if err != nil {
+								fmt.Println("Error writting keys back")
+								return nil, errors.New("Error writing the keys back")
+							}
+
 	            return nil, nil
 	        } else {
 	            fmt.Println("failed to create initialize account for " + account.No)
