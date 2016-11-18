@@ -454,13 +454,13 @@
 		}
 
 		var banks []Bank
-		var flag bool = false
+		var flag int = 0
 		for _, key := range keys {
 			account, err := GetBalance(key, stub)
 
-			if(!bool) {
+			if(flag == 0) {
 				banks = account.Banks
-				bool = true
+				bool = 1
 			} else {
 				var newBanks []Bank
 				var i int = 0
