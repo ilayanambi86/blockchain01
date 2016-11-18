@@ -455,8 +455,8 @@
 				fmt.Println("Error retrieving Account Balance")
 				return nil, errors.New("Error retrieving Account Balance")
 			}
-			//accounts = append(accounts, account)
-			return accounts, nil
+			accounts = append(accounts, account)
+			//return accounts, nil
 		}
 
 		return accounts, nil
