@@ -444,6 +444,10 @@
 		var accounts []Account
 
 		keys, err := GetAllAccountNo(stub)
+		if err != nil {
+			fmt.Println("Error getting all account no")
+			return nil, errors.New("Error getting all account no")
+		}
 
 		for _, key := range keys {
 			account, err := GetBalance(key, stub)
