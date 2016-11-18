@@ -410,18 +410,18 @@
 			}
 		}	else if args[0] == "GetAllBalance" {
 			fmt.Println("Getting particular Balance")
-			account, err := GetAllBalance(stub)
+			bank, err := GetAllBalance(stub)
 			if err != nil {
 				fmt.Println("Error Getting account balances")
 				return nil, err
 			} else {
-				accountBytes, err1 := json.Marshal(&account)
+				bankBytes, err1 := json.Marshal(&bank)
 				if err1 != nil {
 					fmt.Println("Error marshalling the account balances")
 					return nil, err1
 				}
 				fmt.Println("All success, returning the account balances")
-				return accountBytes, nil
+				return bankBytes, nil
 			}
 		}
 		return nil, nil
@@ -444,7 +444,39 @@
 		return keys, nil
 	}
 
-	func GetAllBalance(stub shim.ChaincodeStubInterface) ([]Account, error){
+	func GetAllBalance(stub shim.ChaincodeStubInterface) ([]Bank, error){
+		var accounts []Account
+
+		keys, err := GetAllAccountNo(stub)
+		if err != nil {
+			fmt.Println("Error getting all account no")
+			return nil, errors.New("Error getting all account no")
+		}
+
+		var banks []Bank
+		var flag bool = false
+		for _, key := range keys {
+			account, err := GetBalance(key, stub)
+
+			if(!bool) {
+				banks = account.Banks
+				bool = true
+			} else {
+				var newBanks []Bank
+				var i int = 0
+				for _, indbank := account.Banks {
+					banks[i].Amount += indbank.Amount
+					newBanks = append(newBanks, banks[i])
+					//bank = Bank{BankCode:indbank.BankCode, Amount: indbank.Amount}
+					i++
+				}
+				banks = newBank
+			}
+		}
+		return banks, nil
+	}
+
+	/*func GetAllBalance(stub shim.ChaincodeStubInterface) ([]Account, error){
 		var accounts []Account
 
 		keys, err := GetAllAccountNo(stub)
@@ -460,11 +492,10 @@
 				return nil, errors.New("Error retrieving Account Balance")
 			}
 			accounts = append(accounts, account)
-			//return accounts, nil
 		}
 
 		return accounts, nil
-	}
+	}*/
 
 	func GetBalance(userAccount string, stub shim.ChaincodeStubInterface) (Account, error){
 		var account Account
