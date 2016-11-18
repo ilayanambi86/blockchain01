@@ -390,54 +390,60 @@
 		}
 
 		if args[0] == "GetBalance" {
-				fmt.Println("Getting particular Balance")
-				account, err := GetBalance(args[1], stub)
-				if err != nil {
-					fmt.Println("Error Getting particular account balance")
-					return nil, err
-				} else {
-					accountBytes, err1 := json.Marshal(&account)
-					if err1 != nil {
-						fmt.Println("Error marshalling the account")
-						return nil, err1
-					}
-					fmt.Println("All success, returning the account")
-					return accountBytes, nil
+			fmt.Println("Getting particular Balance")
+			account, err := GetBalance(args[1], stub)
+			if err != nil {
+				fmt.Println("Error Getting particular account balance")
+				return nil, err
+			} else {
+				accountBytes, err1 := json.Marshal(&account)
+				if err1 != nil {
+					fmt.Println("Error marshalling the account")
+					return nil, err1
 				}
+				fmt.Println("All success, returning the account")
+				return accountBytes, nil
+			}
 		}	else if args[0] == "GetAllBalance" {
-						fmt.Println("Getting particular Balance")
-						account, err := GetAllBalance(stub)
-						if err != nil {
-							fmt.Println("Error Getting account balances")
-							return nil, err
-						} else {
-							accountBytes, err1 := json.Marshal(&account)
-							if err1 != nil {
-								fmt.Println("Error marshalling the account balances")
-								return nil, err1
-							}
-							fmt.Println("All success, returning the account balances")
-							return accountBytes, nil
-						}
+			fmt.Println("Getting particular Balance")
+			account, err := GetAllBalance(stub)
+			if err != nil {
+				fmt.Println("Error Getting account balances")
+				return nil, err
+			} else {
+				accountBytes, err1 := json.Marshal(&account)
+				if err1 != nil {
+					fmt.Println("Error marshalling the account balances")
+					return nil, err1
 				}
+				fmt.Println("All success, returning the account balances")
+				return accountBytes, nil
+			}
+		}
 		return nil, nil
 	}
 
-	func GetAllBalance(stub shim.ChaincodeStubInterface) ([]Account, error){
-		var accounts []Account
+	func GetAllAccountNo(stub shim.ChaincodeStubInterface) ([]string, error){
 
-		keysBytes, err := stub.GetState("AccountKeys")
-		if err != nil {
+		keysBytes, err1 := stub.GetState("AccountKeys")
+		if err1 != nil {
 			fmt.Println("Error retrieving AccountKeys")
 			return nil, errors.New("Error retrieving AccountKeys")
 		}
 
 		var keys []string
-		err = json.Unmarshal(keysBytes, &keys)
-		if err != nil {
+		err2 = json.Unmarshal(keysBytes, &keys)
+		if err2 != nil {
 			fmt.Println("Error unmarshel keys")
 			return nil, errors.New("Error unmarshalling paper keys ")
 		}
+		return keys, nil
+	}
+
+	func GetAllBalance(stub shim.ChaincodeStubInterface) ([]Account, error){
+		var accounts []Account
+
+		keys, err := GetAllAccountNo(stub)
 
 		for _, key := range keys {
 			account, err := GetBalance(key, stub)
@@ -445,7 +451,8 @@
 				fmt.Println("Error retrieving Account Balance")
 				return nil, errors.New("Error retrieving Account Balance")
 			}
-			accounts = append(accounts, account)
+			//accounts = append(accounts, account)
+			return accounts, nil
 		}
 
 		return accounts, nil
