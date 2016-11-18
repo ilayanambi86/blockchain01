@@ -221,8 +221,9 @@
 				}
 			}
 			new_banks = append(new_banks, bank)
+			fmt.Println(new_banks)
 		}
-		var new_banks1 []Bank
+		/*var new_banks1 []Bank
 		for _, bank := range reverse(new_banks) {
 			if(amount > 0){
 				if(bank.Amount >= amount) {
@@ -236,8 +237,9 @@
 			}
 			new_banks1 = append(new_banks1, bank)
 		}
+		fmt.Println(new_banks1)*/
 
-		return reverse(new_banks1), nil
+		return reverse(new_banks), nil
 	}
 
 	func (t *SimpleChaincode) withdrawMoney(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
