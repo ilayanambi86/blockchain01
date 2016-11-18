@@ -180,6 +180,7 @@
 
 	                if err == nil {
 	                    fmt.Println("created account" + account.No)
+											addAccountKeys(stub, account.No);
 	                    return nil, nil
 	                } else {
 	                    fmt.Println("failed to create initialize account for " + account.No)
@@ -199,39 +200,41 @@
 
 	        if err == nil {
 	            fmt.Println("created account" + account.No)
-
-							keysBytes, err := stub.GetState("AccountKeys")
-							if err != nil {
-								fmt.Println("Error retrieving AccountKeys")
-								return nil, errors.New("Error retrieving AccountKeys")
-							}
-
-							var keys []string
-							err = json.Unmarshal(keysBytes, &keys)
-							if err != nil {
-								fmt.Println("Error unmarshel keys")
-								return nil, errors.New("Error unmarshalling paper keys ")
-							}
-
-							keys = append(keys, account.No)
-							keysBytesToWrite, err := json.Marshal(&keys)
-							if err != nil {
-								fmt.Println("Error marshalling keys")
-								return nil, errors.New("Error marshalling the keys")
-							}
-
-							err = stub.PutState("AccountKeys", keysBytesToWrite)
-							if err != nil {
-								fmt.Println("Error writting keys back")
-								return nil, errors.New("Error writing the keys back")
-							}
-
+							addAccountKeys(stub, account.No);
 	            return nil, nil
 	        } else {
 	            fmt.Println("failed to create initialize account for " + account.No)
 	            return nil, errors.New("failed to initialize an account for " + account.No + " => " + err.Error())
 	        }
 	    }
+	}
+
+	func addAccountKeys(stub shim.ChaincodeStubInterface, account string) (error){
+		keysBytes, err := stub.GetState("AccountKeys")
+		if err != nil {
+			fmt.Println("Error retrieving AccountKeys")
+			return errors.New("Error retrieving AccountKeys")
+		}
+
+		var keys []string
+		err = json.Unmarshal(keysBytes, &keys)
+		if err != nil {
+			fmt.Println("Error unmarshel keys")
+			return errors.New("Error unmarshalling paper keys ")
+		}
+
+		keys = append(keys, account)
+		keysBytesToWrite, err := json.Marshal(&keys)
+		if err != nil {
+			fmt.Println("Error marshalling keys")
+			return errors.New("Error marshalling the keys")
+		}
+
+		err = stub.PutState("AccountKeys", keysBytesToWrite)
+		if err != nil {
+			fmt.Println("Error writting keys back")
+			return errors.New("Error writing the keys back")
+		}
 	}
 
 	func withdrawMoneyFromBank(banks []Bank, amount float64) ([]Bank, error) {
