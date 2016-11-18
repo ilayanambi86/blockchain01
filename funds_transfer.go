@@ -445,7 +445,7 @@
 	}
 
 	func GetAllBalance(stub shim.ChaincodeStubInterface) ([]Bank, error){
-		var accounts []Account
+		//var accounts []Account
 
 		keys, err := GetAllAccountNo(stub)
 		if err != nil {
@@ -457,6 +457,10 @@
 		var flag int = 0
 		for _, key := range keys {
 			account, err := GetBalance(key, stub)
+			if err != nil {
+				fmt.Println("Error getting all balance")
+				return nil, errors.New("Error getting all balance")
+			}
 
 			if(flag == 0) {
 				banks = account.Banks
