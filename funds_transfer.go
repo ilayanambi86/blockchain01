@@ -130,6 +130,14 @@
 		return banks, nil
 	}
 
+	func reverse(banks []Bank) []Bank {
+		for i := 0; i < len(banks)/2; i++ {
+			j := len(banks) - i - 1
+			banks[i], banks[j] = banks[j], banks[i]
+		}
+		return banks
+	}
+
 	func (t *SimpleChaincode) createAccount(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	  if len(args) != 4 {
 	      fmt.Println("Error obtaining request details. Missing arguments.")
@@ -197,6 +205,94 @@
 	            return nil, errors.New("failed to initialize an account for " + account.No + " => " + err.Error())
 	        }
 	    }
+	}
+
+	func withdrawMoneyFromBank(banks []Bank, amount float64) ([]Bank, error) {
+		//var new_banks []Bank
+		for _, bank := range banks {
+			if(bank.Amount > cap) {
+				var dr =  bank.Amount - cap
+				if(dr <= amount){
+					bank.Amount -= dr
+					amount -= dr
+				} else {
+					bank.Amount -= amount
+					amount = 0
+				}
+			}
+			//new_banks = append(new_banks, bank)
+		}
+
+		for _, bank := range reverse(banks) {
+			if(amount > 0){
+				if(bank.Amount >= amount) {
+					bank.Amount -= amount
+					amount = 0
+				} else {
+					var dr = amount - bank.Amount
+					bank.Amount = dr
+					amount = dr
+				}
+			}
+		}
+		return banks, nil
+	}
+
+	func (t *SimpleChaincode) withdrawMoney(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+    if len(args) != 2 {
+        fmt.Println("Error obtaining useraccount & withdraw money")
+        return nil, errors.New("Error obtaining useraccount & withdraw money")
+    }
+
+		useraccount := args[0]
+		depositAmt, err  := strconv.ParseFloat(args[1], 64)
+
+		if err != nil {
+			fmt.Println("Internal Error ")
+			return nil, errors.New("Internal Error ")
+		}
+
+		fmt.Println("Getting State on account " + useraccount)
+		accountBytes, err := stub.GetState(useraccount)
+		if err != nil {
+			fmt.Println("Account not found")
+			return nil, errors.New("Account not found " + useraccount)
+		}
+
+		var account Account
+		fmt.Println("Unmarshalling Account " + useraccount)
+		err = json.Unmarshal(accountBytes, &account)
+		if err != nil {
+			fmt.Println("Error unmarshalling account " + useraccount)
+			return nil, errors.New("Error unmarshalling account " + useraccount)
+		}
+
+		account.Balance -= depositAmt
+
+		updatedBanks, err := withdrawMoneyFromBank(account.Banks, depositAmt)
+		if err != nil {
+			fmt.Println("Error splitAndDepositMoneyToBank")
+			return nil, errors.New("Error splitAndDepositMoneyToBank")
+		}
+		account.Banks = updatedBanks
+
+		updatedAccountBytes, err := json.Marshal(&account)
+		if err != nil {
+			fmt.Println("Error marshalling the account")
+			return nil, errors.New("Error marshalling the account")
+		}
+
+		err = stub.PutState(account.No, updatedAccountBytes)
+
+		if err == nil {
+			fmt.Println("deposited money to account" + account.No)
+			return nil, nil
+		} else {
+			fmt.Println("failed to deposit money to account " + account.No)
+			return nil, errors.New("failed to deposit money to account " + account.No + " => " + err.Error())
+	   	}
+		fmt.Println("Successfully completed deposit")
+		return nil, nil
 	}
 
 	func (t *SimpleChaincode) depositMoney(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
@@ -313,7 +409,10 @@
     } else if function == "depositMoney" {
         fmt.Println("Firing deposit")
         return t.depositMoney(stub, args)
-    } else if function == "init" {
+    } else if function == "withdrawMoney" {
+        fmt.Println("Firing deposit")
+        return t.withdrawMoney(stub, args)
+    }  else if function == "init" {
         fmt.Println("Firing init")
         return t.Init(stub, "init", args)
     }
