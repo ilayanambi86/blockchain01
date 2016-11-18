@@ -235,6 +235,7 @@
 			fmt.Println("Error writting keys back")
 			return errors.New("Error writing the keys back")
 		}
+		return nil
 	}
 
 	func withdrawMoneyFromBank(banks []Bank, amount float64) ([]Bank, error) {
