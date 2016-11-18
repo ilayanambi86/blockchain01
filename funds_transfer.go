@@ -460,17 +460,17 @@
 
 			if(flag == 0) {
 				banks = account.Banks
-				bool = 1
+				flag = 1
 			} else {
 				var newBanks []Bank
 				var i int = 0
-				for _, indbank := account.Banks {
+				for _, indbank := range account.Banks {
 					banks[i].Amount += indbank.Amount
 					newBanks = append(newBanks, banks[i])
 					//bank = Bank{BankCode:indbank.BankCode, Amount: indbank.Amount}
 					i++
 				}
-				banks = newBank
+				banks = newBanks
 			}
 		}
 		return banks, nil
