@@ -73,7 +73,23 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 			fmt.Println("All success, returning the account balances")
 			return bankBytes, nil
 		}
+	} else if args[0] == "GetAllBalanceList" {
+		fmt.Println("Getting all Balance")
+		account, err := GetAllBalanceList(stub)
+		if err != nil {
+			fmt.Println("Error Getting account balances")
+			return nil, err
+		} else {
+			accountBytes, err1 := json.Marshal(&account)
+			if err1 != nil {
+				fmt.Println("Error marshalling the account balances")
+				return nil, err1
+			}
+			fmt.Println("All success, returning the account balances")
+			return accountBytes, nil
+		}
 	}
+
 	return nil, nil
 }
 
@@ -497,6 +513,27 @@ func GetAllBalance(stub shim.ChaincodeStubInterface) ([]Bank, error) {
 	}
 	return banks, nil
 }
+
+func GetAllBalanceList(stub shim.ChaincodeStubInterface) ([]Account, error){
+		var accounts []Account
+
+		keys, err := GetAllAccountNo(stub)
+		if err != nil {
+			fmt.Println("Error getting all account no")
+			return nil, errors.New("Error getting all account no")
+		}
+
+		for _, key := range keys {
+			account, err := GetBalance(key, stub)
+			if err != nil {
+				fmt.Println("Error retrieving Account Balance")
+				return nil, errors.New("Error retrieving Account Balance")
+			}
+			accounts = append(accounts, account)
+		}
+
+		return accounts, nil
+	}
 
 func GetBalance(userAccount string, stub shim.ChaincodeStubInterface) (Account, error) {
 	var account Account
